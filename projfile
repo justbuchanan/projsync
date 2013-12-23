@@ -1,0 +1,27 @@
+
+
+group 'src', path: '~/src' do
+	project 'dotfiles', origin: 'git@github.com:justbuchanan/dotfiles'
+
+	group 'blumenlo' do
+		project 'blucheck' do
+			sh 'script/bootstrap.sh'
+		end
+		project 'server'
+		project 'blucheck-core-gem'
+	end
+
+	group 'ks' do
+		project 'kslateplates', origin: 'git@github.com:GTKappaSig/kslateplates'
+	end
+
+	group 'rj' do
+
+	
+end
+
+
+
+group 'rj', path: '~/src/rj', default: true do
+	
+end

@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.version       = Projsync::VERSION
   spec.authors       = ["Justin Buchanan"]
   spec.email         = ["justbuchanan@gmail.com"]
-  spec.description   = %q{TODO: Write a gem description}
-  spec.summary       = %q{TODO: Write a gem summary}
+  spec.description   = %q{Sync all of your git repos with one command}
+  spec.summary       = %q{Sync your projects}
   spec.homepage      = ""
   spec.license       = "MIT"
 
@@ -20,4 +20,7 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency "bundler", "~> 1.3"
   spec.add_development_dependency "rake"
+
+  spec.add_runtime_dependency 'grit'
+  spec.add_runtime_dependency 'trollop'
 end

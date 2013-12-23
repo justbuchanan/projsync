@@ -1,0 +1,16 @@
+#!/usr/bin/env ruby
+
+require_relative 'projsync'
+
+
+projfile_path = File.expand_path('~/.projfile')
+
+if !File.exist?(projfile_path)
+	raise StandardError, "No projfile found at '#{projfile_path}'"
+end
+
+
+# evaluate projfile
+@manifest = Projsync::Manifest.new.instance_eval File.read(projfile_path)
+
+p @manifest

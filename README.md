@@ -1,20 +1,14 @@
 # Projsync
 
-TODO: Write a gem description
+I have a lot of software projects that I share across several computers.  I end up doing a lot of:
+```
+cd <project dir>
+git fetch
+git pull
+```
 
-## Installation
+for each of my projects.  ProjSync is a simple utility to automate syncing many projects with one command.
 
-Add this line to your application's Gemfile:
-
-    gem 'projsync'
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install projsync
 
 ## Usage
 
