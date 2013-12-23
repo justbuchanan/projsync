@@ -39,6 +39,11 @@ module Projsync
 		end
 
 
+		def repo_dirty?
+			`git status --porcelain` == ""
+		end
+
+
 		def sync(dry_run = false)
 			puts "Syncing project '#{self.name}' at path '#{self.repo_path}'..."
 
