@@ -10,9 +10,15 @@ git pull
 for each of my projects.  ProjSync is a simple utility to automate syncing many projects with one command.
 
 
+## Status
+
+This is very much a work in progress at the moment and doesn't work yet.
+
+
 ## Usage
 
-TODO: Write usage instructions here
+`projsync	# that's it!`
+
 
 ## Contributing
 
