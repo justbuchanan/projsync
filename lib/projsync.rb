@@ -5,9 +5,10 @@ require 'grit'
 module Projsync
 
 	class Project
-		attr_accessor :group
-		attr_accessor :name
 
+		attr_accessor :name
+		attr_accessor :group
+		attr_accessor :path
 
 		# the block passed in is run when the project syncs
 		# options:
@@ -23,8 +24,13 @@ module Projsync
 
 		def repo_path
 			fp = self.path
-			fp = File.join(self.group.path, fp) if self.group
+			fp = File.join(self.group.dir_path, fp) if self.group
 			File.expand_path(fp)
+		end
+
+
+		def exist?
+			File.exist? self.repo_path
 		end
 
 
@@ -34,22 +40,25 @@ module Projsync
 
 
 		def sync(dry_run = false)
-			
+			puts "Syncing project '#{self.name}' at path '#{self.repo_path}'..."
+
+			system("cd #{repo_path} && git fetch")
+
 			#FIXME: if it doesn't exist, clone it from origin if specified
 
 
-			r = self.git_repo
+			# r = self.git_repo
 
-			if !r.dirty?
-				r.fetch()
-				r.pull()
+			# if !r.dirty?
+			# 	r.fetch()
+			# 	r.pull()
 
-				@sync_block.call() if @sync_block
+			# 	@sync_block.call() if @sync_block
 
-				puts "Fetched, pulled, and ran sync block"
-			else
-				puts "Repo was dirty, so skipping fetch/pull"
-			end
+			# 	puts "Fetched, pulled, and ran sync block"
+			# else
+			# 	puts "Repo was dirty, so skipping fetch/pull"
+			# end
 		end
 
 
@@ -67,6 +76,7 @@ module Projsync
 
 		attr_accessor :name
 		attr_accessor :default
+		attr_accessor :path
 
 
 		def initialize(parent, name, options = {})
@@ -82,6 +92,11 @@ module Projsync
 		end
 
 
+		def full_path
+
+		end
+
+
 		def subgroups
 			@subgroups ||= []
 		end
@@ -89,6 +104,27 @@ module Projsync
 
 		def projects
 			@projects ||= []
+		end
+
+		def name_path
+			self.parent.nil? || self.parent.name.nil? ? self.name : self.parent.name_path + '/' + self.name
+		end
+
+
+		def dir_path
+			self.parent.nil? || self.parent.dir_path.nil? ? self.path : self.parent.dir_path + '/' + self.path
+		end
+
+
+		def sync(options = {}, blacklist = [], whitelist = [])
+			np = self.name_path
+			if (self.default or whitelist.include? np) and !blacklist.include? np
+				self.projects.each { |proj| proj.sync(options) }
+			end
+
+			self.subgroups.each do|subgroup|
+				subgroup.sync(options, blacklist, whitelist)
+			end
 		end
 
 
@@ -138,8 +174,8 @@ module Projsync
 		end
 
 
-		def sync()
-
+		def sync(options = {}, blacklist = [], whitelist = [])
+			@tree.sync(blacklist, whitelist)
 		end
 
 
