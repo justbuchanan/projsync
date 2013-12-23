@@ -1,5 +1,6 @@
 require "projsync/version"
 require 'grit'
+require 'colorize'
 
 
 module Projsync
@@ -45,7 +46,7 @@ module Projsync
 
 
 		def sync(dry_run = false)
-			puts "Syncing project '#{self.name}' at path '#{self.repo_path}'..."
+			puts "Syncing project '#{self.name}' at path '#{self.repo_path}'...".green
 
 			system("cd #{repo_path} && git fetch")
 
