@@ -1,0 +1,43 @@
+#!/usr/bin/env ruby
+
+require 'projsync'
+require 'trollop'
+
+
+SUB_COMMANDS = ['list', 'sync']
+global_opts = Trollop::options do
+	banner <<-EOF
+		Proj Sync utility
+
+		Usage:
+			proj sync
+			proj list
+	EOF
+end
+
+
+projfile_path = File.expand_path('~/.projfile')
+
+if !File.exist?(projfile_path)
+	raise StandardError, "No projfile found at '#{projfile_path}'"
+end
+
+# evaluate projfile
+@manifest = Projsync::Manifest.new
+@manifest.instance_eval File.read(projfile_path)
+
+
+# get the subcommand
+cmd = ARGV.shift
+
+
+case cmd
+when 'list'
+	p @manifest
+when 'sync'
+	@manifest.sync()
+when nil
+	raise Trollop::die "Please give a command"
+else
+	raise Trollop::die "Unknown command '#{cmd}'"
+end
