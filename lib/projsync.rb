@@ -10,6 +10,7 @@ module Projsync
 		attr_accessor :name
 		attr_accessor :group
 		attr_accessor :path
+		attr_accessor :origin
 
 		# the block passed in is run when the project syncs
 		# options:
@@ -35,7 +36,7 @@ module Projsync
 		end
 
 
-		def git_repo
+		def repo
 			Grit::Repo.new(self.repo_path)
 		end
 
@@ -45,26 +46,43 @@ module Projsync
 		end
 
 
+		def log(type, text)
+			text = "[#{name_path}] #{text}"
+			case type
+			when :action
+				puts text.green
+			when :status
+				puts text.yellow
+			when :error
+				puts text.red
+			else
+				raise ArgumentError, "Unknown log typ '#{type}'"
+			end
+		end
+
+
 		def sync(dry_run = false)
-			puts "Syncing project '#{self.name}' at path '#{self.repo_path}'...".green
+			if exist?
+				if repo_dirty?
+					log :status, "Repo dirty, not fetching"
+				else
+					log :action, "Fetching..."
+					`cd #{repo_path} && git fetch`
 
-			system("cd #{repo_path} && git fetch")
+					#TODO: pull
+					#TODO: run sync block
+					# 	@sync_block.call() if @sync_block
+				end
 
-			#FIXME: if it doesn't exist, clone it from origin if specified
-
-
-			# r = self.git_repo
-
-			# if !r.dirty?
-			# 	r.fetch()
-			# 	r.pull()
-
-			# 	@sync_block.call() if @sync_block
-
-			# 	puts "Fetched, pulled, and ran sync block"
-			# else
-			# 	puts "Repo was dirty, so skipping fetch/pull"
-			# end
+				#TODO: push
+			else
+				if origin
+					log :action, "Project not present, cloning from origin..."
+					`mkdir #{repo_path} && cd #{repo_path} && git clone #{origin}`
+				else
+					log :error, "Project not present, specify an origin in projfile and resync"
+				end
+			end
 		end
 
 
