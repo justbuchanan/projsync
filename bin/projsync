@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-require_relative 'projsync'
+require 'projsync'
 
 
 projfile_path = File.expand_path('~/.projfile')
@@ -11,6 +11,9 @@ end
 
 
 # evaluate projfile
-@manifest = Projsync::Manifest.new.instance_eval File.read(projfile_path)
+@manifest = Projsync::Manifest.new
+@manifest.instance_eval File.read(projfile_path)
 
 p @manifest
+
+@manifest.sync()

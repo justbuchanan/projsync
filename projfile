@@ -1,5 +1,4 @@
 
-
 group 'src', path: '~/src' do
 	project 'dotfiles', origin: 'git@github.com:justbuchanan/dotfiles'
 
@@ -16,12 +15,10 @@ group 'src', path: '~/src' do
 	end
 
 	group 'rj' do
-
-	
-end
-
-
-
-group 'rj', path: '~/src/rj', default: true do
-	
+		group 'robocup' do
+			project 'software'
+			project 'electrical'
+			project 'docs'
+		end
+	end
 end
