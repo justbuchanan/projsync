@@ -6,7 +6,6 @@ require 'colorize'
 module Projsync
 
 	class Project
-
 		attr_accessor :name
 		attr_accessor :group
 		attr_accessor :path
@@ -24,7 +23,7 @@ module Projsync
 		end
 
 
-		def repo_path
+		def dir_path
 			fp = self.path
 			fp = File.join(self.group.dir_path, fp) if self.group
 			File.expand_path(fp)
@@ -32,17 +31,17 @@ module Projsync
 
 
 		def exist?
-			File.exist? self.repo_path
+			File.exist? self.dir_path
 		end
 
 
 		def repo
-			Grit::Repo.new(self.repo_path)
+			Grit::Repo.new(self.dir_path)
 		end
 
 
 		def repo_dirty?
-			`git status --porcelain` == ""
+			`cd #{dir_path} && git status --porcelain` == ""
 		end
 
 
@@ -61,13 +60,22 @@ module Projsync
 		end
 
 
+		def name_path
+			if self.group && self.group.name_path && self.group.name_path.length
+				self.group.name_path + '/' + self.name
+			else
+				self.name
+			end
+		end
+
+
 		def sync(dry_run = false)
 			if exist?
 				if repo_dirty?
 					log :status, "Repo dirty, not fetching"
 				else
 					log :action, "Fetching..."
-					`cd #{repo_path} && git fetch`
+					system("cd #{dir_path} && git fetch")
 
 					#TODO: pull
 					#TODO: run sync block
@@ -78,7 +86,7 @@ module Projsync
 			else
 				if origin
 					log :action, "Project not present, cloning from origin..."
-					`mkdir #{repo_path} && cd #{repo_path} && git clone #{origin}`
+					system("mkdir #{dir_path} && cd #{dir_path} && git clone #{origin}")
 				else
 					log :error, "Project not present, specify an origin in projfile and resync"
 				end
@@ -116,11 +124,6 @@ module Projsync
 		end
 
 
-		def full_path
-
-		end
-
-
 		def subgroups
 			@subgroups ||= []
 		end
@@ -131,7 +134,11 @@ module Projsync
 		end
 
 		def name_path
-			self.parent.nil? || self.parent.name.nil? ? self.name : self.parent.name_path + '/' + self.name
+			if self.parent && self.parent.name
+				self.parent.name_path + '/' + self.name
+			else
+				self.name
+			end
 		end
 
 
