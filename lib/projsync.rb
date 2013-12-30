@@ -68,25 +68,34 @@ module Projsync
 			end
 		end
 
+		# cd's to dir_path, then executes +cmd+ using system()
+		def sh(cmd)
+			system("cd #{dir_path} && #{cmd}")
+		end
+
 
 		def sync(dry_run = false)
 			if exist?
-				if repo_dirty?
-					log :status, "Repo dirty, not fetching"
-				else
-					log :action, "Fetching..."
-					system("cd #{dir_path} && git fetch")
+				log :action, "Fetching..."
+				sh 'git fetch'
 
-					#TODO: pull
+				if repo_dirty?
+					log :status, "Repo dirty, not pulling"
+				else
+					log :action, "Pulling..."
+					sh 'git pull'
+
 					#TODO: run sync block
 					# 	@sync_block.call() if @sync_block
 				end
 
-				#TODO: push
+				log :action, "Pushing..."
+				sh 'git push'
 			else
 				if origin
 					log :action, "Project not present, cloning from origin..."
-					system("mkdir #{dir_path} && cd #{dir_path} && git clone #{origin}")
+					system("mkdir -p #{dir_path}")
+					sh "git clone #{origin}"
 				else
 					log :error, "Project not present, specify an origin in projfile and resync"
 				end
